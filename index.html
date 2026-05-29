@@ -124,7 +124,7 @@
                 </div>
                 <div class="lg:w-5/12">
                     <div class="aspect-w-3 aspect-h-4 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex items-center justify-center relative">
-     <img src="image/process.jpg" alt="Process Diagram" class="object-cover w-full h-full">
+                        <img src="image/process.jpg" alt="Process Diagram" class="object-cover w-full h-full">
                     </div>
                 </div>
             </div>
@@ -175,27 +175,26 @@
                 
                 <div class="bg-white rounded-2xl p-8 shadow-xl text-gray-800">
                     <h3 class="text-2xl font-bold mb-6">Send us an Inquiry</h3>
-                    <form action="https://formspree.io/f/DVqZdrxj" method="POST" class="space-y-4">
+                    <form id="leadForm" class="space-y-4">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input type="text" name="name" id="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 border p-2.5 bg-gray-50">
+                            <input type="text" id="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 border p-2.5 bg-gray-50">
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Work Email</label>
-                            <input type="email" name="email" id="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 border p-2.5 bg-gray-50">
+                            <input type="email" id="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 border p-2.5 bg-gray-50">
                         </div>
                         <div>
                             <label for="company" class="block text-sm font-medium text-gray-700">Company Name</label>
-                            <input type="text" name="company" id="company" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 border p-2.5 bg-gray-50">
+                            <input type="text" id="company" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 border p-2.5 bg-gray-50">
                         </div>
                         <div>
                             <label for="job_title" class="block text-sm font-medium text-gray-700">Job Title</label>
-                            <input type="text" name="job_title" id="job_title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 border p-2.5 bg-gray-50">
+                            <input type="text" id="job_title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 border p-2.5 bg-gray-50">
                         </div>
-                        <input type="text" name="_gotcha" style="display:none" />
                         
-                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors mt-6">
-                            Submit Request
+                        <button type="submit" id="submitBtn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors mt-6">
+                            <span>Submit Request</span>
                         </button>
                     </form>
                 </div>
@@ -217,11 +216,88 @@
         </div>
     </section>
 
+    <div id="successModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 text-center shadow-2xl transform transition-all scale-95 opacity-0 duration-300" id="modalCard">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Submission Successful!</h3>
+            <p class="text-gray-500 mb-6 leading-relaxed">Thank you for your interest. Our technical experts will review your requirements and reply to your email within 24 hours.</p>
+            <button onclick="closeModal()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-medium py-3 rounded-lg transition duration-200 shadow-md">
+                Close
+            </button>
+        </div>
+    </div>
+
     <footer class="bg-gray-900 py-8 border-t border-gray-800">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <p class="text-gray-400 text-sm">© 2026 Beijing Zhonghai Guanghe Technology Co., Ltd. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+    document.getElementById('leadForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // 阻止网页刷新跳转
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span>Sending...</span>';
+        submitBtn.disabled = true;
+
+        // 1. 动态打包表单上的所有 4 个字段
+        const payload = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            company: document.getElementById('company').value,
+            job_title: document.getElementById('job_title').value
+        };
+
+        // 2. 异步投递到 Make.com 免费中转站
+        // ⚠️ 请将下方双引号里的文字替换为你从 Make 复制出来的真实 Webhook 链接
+        const makeWebhookUrl = "https://hook.eu1.make.com/veq6xadptsxjjl8b7k6px4a8m92ohbeu";
+
+        fetch(makeWebhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            // 3. 发送成功：优雅弹出成功提示窗口
+            const modal = document.getElementById('successModal');
+            const card = document.getElementById('modalCard');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 50);
+            
+            // 4. 重置清空表单
+            document.getElementById('leadForm').reset();
+        })
+        .catch(err => {
+            alert('Submission failed, please try again later.');
+            console.error(err);
+        })
+        .finally(() => {
+            // 恢复按钮原始状态
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+
+    // 关闭成功弹窗的控制函数
+    function closeModal() {
+        const modal = document.getElementById('successModal');
+        const card = document.getElementById('modalCard');
+        card.classList.remove('scale-100', 'opacity-100');
+        card.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+    </script>
 
 </body>
 </html>
